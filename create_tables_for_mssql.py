@@ -15,8 +15,9 @@ def create_tables(connection,cursor):
     cursor.execute('''create table Disciplines 
                        (discipline_id int identity primary key,
                        distance int not null,
+                       sex nvarchar(60),
                        style nvarchar(60) not null,
-                       year_of_birth int not null
+                       comp_year int not null
                        )''')
     cursor.execute('''create table Results 
                        (result_id int identity primary key,
@@ -24,7 +25,7 @@ def create_tables(connection,cursor):
                        result_time nvarchar(60) not null,
                        swimmer_id int,
                        discipline_id int
-                       FOREIGN KEY (swimmer_id) REFERENCES Swimmers(swimmer_id)
+                       FOREIGN KEY (swimmer_id) REFERENCES Swimmers(swimmer_id),
                        FOREIGN KEY (discipline_id) REFERENCES Disciplines(discipline_id)
                        )''')
     connection.commit()

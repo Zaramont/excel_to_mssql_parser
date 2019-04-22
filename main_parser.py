@@ -4,14 +4,17 @@ import pyodbc
 
 import to_csv_converter
 
+import create_tables_for_mssql
+
 
 def insert_to_club(connection, cursor, city, name):
-    club_id = cursor.execute(
-        "select club_id from Clubs where club_city='{}' and club_name='{}'".format(city, name)).fetchone()
+    sql = "select club_id from Clubs where club_city='{}' and club_name='{}'".format(city, name)
+    club_id = cursor.execute(sql
+        ).fetchone()
     if club_id:
         pass
     else:
-        cursor.execute("insert into Clubs(club_city,club_name) values('{}','{}')".format(city, name))
+        cursor.execute("insert into Clubs(club_city,club_name) values('{}','{}')".format(city, name),)
         club_id = cursor.execute("select @@IDENTITY").fetchone()
     return club_id[0]
 
@@ -27,7 +30,7 @@ def insert_to_swimmer(connection, cursor, last_name, first_name, year_of_birth, 
         cursor.execute(
             "insert into Swimmers(last_name,first_name,year_of_birth,club_id) values('{}','{}','{}',{})".format(
                 last_name, first_name, year_of_birth, club_id))
-        swimmer_id = cursor.execute("select @@IDENTITY").fetchone()[0]
+        swimmer_id = cursor.execute("select @@IDENTITY").fetchone()
     return swimmer_id[0]
 
 
@@ -38,17 +41,18 @@ def insert_to_results(connection, cursor, swimmer_id, discipline_id, place, resu
 
 
 def insert_to_disciplines(connection, cursor, distance, style, sex, comp_year):
-    discipline_id = cursor.execute(
-        "select discipline_id from Disciplines \
+    sql = "select discipline_id from Disciplines \
         where distance={} and style='{}' and sex='{}' and comp_year={}".format(
-            distance, style, sex, comp_year)).fetchone()
+            distance, style, sex, comp_year)
+    discipline_id = cursor.execute(sql).fetchone()
     if discipline_id:
         pass
     else:
-        cursor.execute(
-            "insert into Disciplines(distance, style, sex, comp_year) values({},'{}','{}',{})".format(
-                distance, style, sex, comp_year))
-        discipline_id = cursor.execute("select @@IDENTITY").fetchone()[0]
+        sql = "insert into Disciplines(distance, style, sex, comp_year) values({},'{}','{}',{})".format(
+                distance, style, sex, comp_year)
+        cursor.execute(sql
+            )
+        discipline_id = cursor.execute("select @@IDENTITY").fetchone()
     return discipline_id[0]
 
 
@@ -57,18 +61,16 @@ def main():
     path_to_csv = './resources/Competition1.csv'
 
     to_csv_converter.xls2csv(path_to_xls, path_to_csv)
-    connection = pyodbc.connect('''
-        DRIVER={ODBC Driver 17 for SQL Server};
-        SERVER=.;
-        UID=SA;
-        PWD=E3fxsfDY;
-        DATABASE=EXAMPLE2
-        ''')
+    connection = pyodbc.connect(
+        '''DRIVER={ODBC Driver 17 for SQL Server};SERVER=.;CHARSET=UTF8;UID=SA;PWD=E3fxsfDY;DATABASE=EXAMPLE2''')
     cur = connection.cursor()
-
-    # club_id = insert_to_club(connection, cur, 'Onix', 'Utki')
+    create_tables_for_mssql.create_tables(connection, cur)
+    # club_id = insert_to_club(connection, cur, 'Саша3', 'Пучек3')
+    # c = cur.execute("select club_id from Clubs")
+    # connection.commit()
     # swimmer_id = insert_to_swimmer(connection, cur, 'Alex', 'Puchek', '1990', club_id)
-
+    # c= cur.execute("select * from Swimmers").fetchall()
+    # print(c)
     file = open(path_to_csv, encoding='utf-8')
     parts = re.split(',' * 8, file.read())
 
@@ -123,3 +125,7 @@ def main():
 
     connection.close()
     file.close()
+
+
+main()
+print('End...')
