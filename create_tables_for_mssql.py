@@ -18,4 +18,13 @@ def create_tables(connection,cursor):
                        style nvarchar(60) not null,
                        year_of_birth int not null
                        )''')
+    cursor.execute('''create table Results 
+                       (result_id int identity primary key,
+                       place int not null,
+                       result_time nvarchar(60) not null,
+                       swimmer_id int,
+                       discipline_id int
+                       FOREIGN KEY (swimmer_id) REFERENCES Swimmers(swimmer_id)
+                       FOREIGN KEY (discipline_id) REFERENCES Disciplines(discipline_id)
+                       )''')
     connection.commit()
