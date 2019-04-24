@@ -15,7 +15,7 @@ def create_tables(connection,cursor):
     cursor.execute('''create table Disciplines 
                        (discipline_id int identity primary key,
                        distance int not null,
-                       sex nvarchar(60),
+                       gender nvarchar(60),
                        style nvarchar(60) not null,
                        comp_year int not null
                        )''')
